@@ -1,24 +1,37 @@
 package com.theokanning.openai.completion;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.theokanning.openai.CommonRequest;
+import lombok.*;
 
 import java.util.List;
 
 /**
  * A request for OpenAi to generate a predicted completion for a prompt.
  * All fields are nullable.
- *
+ * <p>
  * Documentation taken from
  * https://beta.openai.com/docs/api-reference/create-completion
  */
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
 @Data
-public class CompletionRequest {
+public class CompletionRequest extends CommonRequest {
+
+    @Builder
+    public CompletionRequest(List<String> stop, Integer maxTokens, String prompt, Double temperature,
+                             Double topP, Integer n, Boolean stream, Integer logprobs, Boolean echo,
+                             Double presencePenalty, Double frequencyPenalty, Integer bestOf, String model) {
+        super(stop, maxTokens, n);
+        this.prompt = prompt;
+        this.temperature = temperature;
+        this.topP = topP;
+        this.stream = stream;
+        this.logprobs = logprobs;
+        this.echo = echo;
+        this.presencePenalty = presencePenalty;
+        this.frequencyPenalty = frequencyPenalty;
+        this.bestOf = bestOf;
+        this.model = model;
+    }
 
     /**
      * An optional prompt to complete from
@@ -26,16 +39,9 @@ public class CompletionRequest {
     String prompt;
 
     /**
-     * The maximum number of tokens to generate.
-     * Requests can use up to 2048 tokens shared between prompt and completion.
-     * (One token is roughly 4 characters for normal English text)
-     */
-    Integer maxTokens;
-
-    /**
      * What sampling temperature to use. Higher values means the model will take more risks.
      * Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
-     *
+     * <p>
      * We generally recommend using this or {@link top_p} but not both.
      */
     Double temperature;
@@ -44,18 +50,10 @@ public class CompletionRequest {
      * An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of
      * the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are
      * considered.
-     *
+     * <p>
      * We generally recommend using this or {@link temperature} but not both.
      */
     Double topP;
-
-    /**
-     * How many completions to generate for each prompt.
-     *
-     * Because this parameter generates many completions, it can quickly consume your token quota.
-     * Use carefully and ensure that you have reasonable settings for {@link max_tokens} and {@link stop}.
-     */
-    Integer n;
 
     /**
      * Whether to stream back partial progress.
@@ -78,12 +76,6 @@ public class CompletionRequest {
     Boolean echo;
 
     /**
-     * Up to 4 sequences where the API will stop generating further tokens.
-     * The returned text will not contain the stop sequence.
-     */
-    List<String> stop;
-
-    /**
      * Number between 0 and 1 (default 0) that penalizes new tokens based on whether they appear in the text so far.
      * Increases the model's likelihood to talk about new topics.
      */
@@ -99,9 +91,14 @@ public class CompletionRequest {
      * Generates best_of completions server-side and returns the "best"
      * (the one with the lowest log probability per token).
      * Results cannot be streamed.
-     *
+     * <p>
      * When used with {@link n}, best_of controls the number of candidate completions and n specifies how many to return,
      * best_of must be greater than n.
      */
     Integer bestOf;
+
+    /**
+     * ID of the engine to use for completion
+     */
+    String model;
 }
